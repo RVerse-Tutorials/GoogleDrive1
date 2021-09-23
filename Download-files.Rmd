@@ -1,6 +1,6 @@
 ---
 title: "Download files from a Google Drive folder"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
