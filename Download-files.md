@@ -3,7 +3,7 @@
 This tutorial will use all of 4 functions within the
 [{googledrive}](https://googledrive.tidyverse.org/) package:
 
-drive\_auth() Authorize googledrive to access your google drive
+drive\_auth() Authorize {googledrive} to access your Google Drive
 drive\_ls() List contents of a folder or shared drive drive\_download()
 Download a Drive file drive\_upload() Upload into a new Drive file
 

@@ -4,15 +4,18 @@ date: '`r format(Sys.time(), "%A %B %d %Y %X %Z")`'
 output: 
   md_document:
     toc: true
-  html_document:
-    toc: true
-    toc_float:
-      toc_collapsed: true
-    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# output: 
+#   md_document:
+#     toc: true
+#   html_document:
+#     toc: true
+#     toc_float:
+#       toc_collapsed: true
+#     toc_depth: 3
 ```
 
 # Overview
