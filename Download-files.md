@@ -3,15 +3,16 @@
 This tutorial will use all of 4 functions within the
 [{googledrive}](https://googledrive.tidyverse.org/) package:
 
-drive\_auth() Authorize {googledrive} to access your Google Drive
-drive\_ls() List contents of a folder or shared drive drive\_download()
-Download a Drive file drive\_upload() Upload into a new Drive file
+-   `drive_auth()` Authorize {googledrive} to access your Google Drive
+-   `drive_ls()` List contents of a folder or shared drive
+-   `drive_download()` Download a Drive file
+-   `drive_upload()` Upload into a new Drive file
 
 This code is designed to be run locally (meaning on someone’s computer
 manually). If the Google Drive folder is private, you need to run the
 authentication code first before you knit the Rmd file.
 
-Below are examples using a publicly visible Google Drive folder.
+Below are examples using a NOAA Google Drive folder.
 
 ## Set-up
 
@@ -21,22 +22,34 @@ Below are examples using a publicly visible Google Drive folder.
 
 ### 2. Create a folder on Google Drive (if needed)
 
-I have created one (it is only accessible if you are in NOAA), and it
-has the following sample files:
+I have created a Google Drive folder in my NOAA account. It is only
+viewable if you are in NOAA, and is only editable by the creator (Eli).
+It has the following sample files:
 
 ![](images/googledrive.png)
 
 ### 3. Copy the url to the Google Drive folder location\*
 
-\*Only people with a NOAA email will be able to access this folder
+\*Only people with a NOAA email will be able to see this folder
 
     url_googledrive <- "https://drive.google.com/drive/folders/11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
     id_googledrive <- "11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
 
-## Authorize google drive to connect to R (drive\_auth)\* (see more notes at the end of the tutorial)
+## Authorize google drive to connect\*
+
+\*Make sure to see the notes at the end of the tutorial about getting
+authorization to work inside a RMarkdown file. If you are running from
+the command line, the instructions below work fine but if you are in a
+Rmd file, you are in “non-interactive” mode and you need to cache your
+authorization and tell your Rmd file where that cache resides.
 
 If this is a private Google Drive folder **then you need to authorize
-{googledrive} to access Google Drive**
+{googledrive} to view the Google Drive folder**. What does “private”
+mean? It means you need to be logged into a Google account that has
+permission to see that drive. Our NOAA Google Drives cannot be made
+“public”, but if you had a personal Google account, you could make the
+folder viewable by anyone and you would not need to authenticate (to
+view at least).
 
 This script below works for your first time connecting and creating a
 “token” and later for reconnecting, but you’ll need to run this outside
@@ -46,24 +59,19 @@ session. This will open a window on your browser where you tell it to
 authenticate with your Google account. Only people with access to
 folders or files can access said folders or files.
 
-    # https://developers.google.com/identity/protocols/oauth2/scopes
-    # googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly", email="eli.holmes@noaa.gov")
+The default scope for \`\` is to allow {googledrive} to view, edit and
+delete. But you might want to limit the scope to readonly if you don’t
+need to edit, upload or delete files. You can read about scopes
+[here](https://developers.google.com/identity/protocols/oauth2/scopes).
+
+This would set the authorization to readonly.
+
+    googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly", email = "eli.holmes@noaa.gov")
+
+This would set the authorization to full control (read, edit, upload and
+delete).
+
     googledrive::drive_auth()
-
-    ## ! Using an auto-discovered, cached token.
-
-    ##   To suppress this message, modify your code or options to clearly consent to
-    ##   the use of a cached token.
-
-    ##   See gargle's "Non-interactive auth" vignette for more details:
-
-    ##   <https://gargle.r-lib.org/articles/non-interactive-auth.html>
-
-    ## i The googledrive package is using a cached token for 'emily.markowitz@noaa.gov'.
-
-    1
-
-    ## [1] 1
 
 ## List the files in a google drive folder
 
@@ -72,15 +80,15 @@ All files.
     dir_files <- googledrive::drive_ls(path = url_googledrive)
     dir_files$name
 
-    ## [1] "our-google-spreadsheet" "our-google-doc"         "data.xlsx"             
-    ## [4] "Rock.csv"               "Stone.csv"
+    ## [1] "our-google-spreadsheet" "data.xlsx"              "our-google-doc"        
+    ## [4] "Stone.csv"              "Rock.csv"
 
 All csv files.
 
     dir_files <- googledrive::drive_ls(path = url_googledrive, type="csv")
     dir_files$name
 
-    ## [1] "Rock.csv"  "Stone.csv"
+    ## [1] "Stone.csv" "Rock.csv"
 
 All Excel files.
 
@@ -115,24 +123,22 @@ First get the files in the folder.
     # find the id of that file
     file_id <- a$id[which(a$name==file_name)]
     # download the file and save to data folder
-    googledrive::drive_download(file=a$id[1],
-                                overwrite = TRUE, 
-                                path = file.path("data", file_name))
+    googledrive::drive_download(file=a$id[1], overwrite = TRUE, path = file.path("data", file_name))
 
     ## File downloaded:
 
-    ## * 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
+    ## • 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
 
     ## Saved locally as:
 
-    ## * 'data/data.xlsx'
+    ## • 'data/data.xlsx'
 
 Read that file in using the **readxl** package.
 
     tmp <- readxl::read_excel(file.path(here::here(), "data", "data.xlsx"))
     tmp
 
-    ## # A tibble: 6 x 2
+    ## # A tibble: 6 × 2
     ##    year count
     ##   <dbl> <dbl>
     ## 1  1990    10
@@ -146,17 +152,15 @@ Read that file in using the **readxl** package.
 
     file_name <- "Stone.csv"
     file_id <- a$id[which(a$name==file_name)]
-    googledrive::drive_download(file=a$id[1],
-                                overwrite = TRUE, 
-                                path = file.path("data", file_name))
+    googledrive::drive_download(file=a$id[1], overwrite = TRUE, path = file.path("data", file_name))
 
     ## File downloaded:
 
-    ## * 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
+    ## • 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
 
     ## Saved locally as:
 
-    ## * 'data/Stone.csv'
+    ## • 'data/Stone.csv'
 
 Read that file in.
 
@@ -171,54 +175,53 @@ Read that file in.
     ## 5 1994    40
     ## 6 1995    50
 
-### Download a bunch of csv files from the same folder to a folder called `data`.
-
-Download all the csv files in a Google Drive folder.
+### Download csv files from the same folder to a folder called `data`.
 
     a <- googledrive::drive_ls(path = url_googledrive, type = "csv")
     for (i in 1:nrow(a)){
-      googledrive::drive_download(a$id[i], 
-                                  overwrite = TRUE, 
-                                  path = file.path("data", a$name[i]))
+      googledrive::drive_download(a$id[i], overwrite = TRUE, path = file.path("data", a$name[i]))
     }
 
     ## File downloaded:
 
-    ## * 'Rock.csv' <id: 1-dz_3QUqmzuXtWXfCcZUowUhZI1x9XAb>
+    ## • 'Stone.csv' <id: 15nK21BniTuMpAhEXXAnsHwopOXOEcnzf>
 
     ## Saved locally as:
 
-    ## * 'data/Rock.csv'
+    ## • 'data/Stone.csv'
 
     ## File downloaded:
 
-    ## * 'Stone.csv' <id: 15nK21BniTuMpAhEXXAnsHwopOXOEcnzf>
+    ## • 'Rock.csv' <id: 1-dz_3QUqmzuXtWXfCcZUowUhZI1x9XAb>
 
     ## Saved locally as:
 
-    ## * 'data/Stone.csv'
+    ## • 'data/Rock.csv'
 
-### Download a bunch of Google Spreadsheets files from the same folder to a folder called `data`.
-
-Download all the Google Spreadsheets in a Google Drive folder.
+### Download Google Spreadsheets files from the same folder to a folder called `data`.
 
     a <- googledrive::drive_ls(path = url_googledrive, type = "spreadsheet")
     for (i in 1:nrow(a)){
-      googledrive::drive_download(a$id[i], 
-                                  type = "csv", 
-                                  overwrite = TRUE, 
-                                  path = file.path("data", a$name[i]))
+      googledrive::drive_download(a$id[i], type = "csv", overwrite = TRUE, path = file.path("data", a$name[i]))
     }
 
     ## File downloaded:
 
-    ## * 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
+    ## • 'our-google-spreadsheet' <id: 1plRbVAZJ_bkGFw9Y54u57eFxL-F5zaXG8elFm3r9BXs>
 
     ## Saved locally as:
 
-    ## * 'data/our-google-spreadsheet.csv'
+    ## • 'data/our-google-spreadsheet.csv'
 
 ## Uploading content to Google Drive
+
+To upload content, you need authorize to full control (read, edit,
+upload and delete) rather than just readonly. Also you need to be able
+to edit the Google Drive. The URL being used in this Rmd is only
+editable by the person who created it. So you would need to replace the
+URL (and id) by a folder that you have permission to edit.
+
+    googledrive::drive_auth()
 
 ### Save a table to Google Drive
 
@@ -226,7 +229,7 @@ Here we have an example data set of daily air quality measurements in
 New York, May to September 1973. We are going to save this table and
 share it back to Google Drive.
 
-Create table
+Create table.
 
     airquality <- datasets::airquality
     head(airquality)
@@ -239,61 +242,78 @@ Create table
     ## 5    NA      NA 14.3   56     5   5
     ## 6    28      NA 14.9   66     5   6
 
-    write.csv(x = airquality, file = "./data/airquality.csv")
+    fil <- file.path(here::here(), "data", "airquality.csv")
+    write.csv(x = airquality, file = fil)
 
-Upload table to Google Drive
+Upload table to Google Drive.
 
-    # Code won't actually work since the file is View only, but this is what you would do
-    googledrive::drive_upload(
-      media = "./data/airquality.csv", 
-      path = googledrive::as_id(id_googledrive), 
-      overwrite = TRUE)
+    googledrive::drive_upload(media = fil, path = googledrive::as_id(id_googledrive), overwrite = TRUE)
 
 ### Save an image to Google Drive
 
-We can save almost any kind of content, even including images!
+Create image.
 
-Create image
-
-    jpeg(file="./data/airquality_plot.jpeg")
+    fil <- file.path(here::here(), "data", "airquality_plot.jpeg")
+    jpeg(file=fil)
     hist(airquality$Temp, main = "Temperature Histogram", ylab = "Temperatures")
     dev.off()
 
-    ## png 
-    ##   2
+    ## quartz_off_screen 
+    ##                 2
 
-Upload image to Google Drive
+Upload image to Google Drive.
 
-    # Code won't actually work since the file is View only, but this is what you would do
-    drive_upload(
-      media = "./data/airquality_plot.jpeg", 
-      path = googledrive::as_id(id_googledrive), 
-      overwrite = TRUE)
+    drive_upload(media = fil, path = googledrive::as_id(id_googledrive), overwrite = TRUE)
 
 ## Pushing results up to GitHub
 
-Here I show how you might use the **gert** package. Note this works
-because I am doing it within RStudio and RStudio has permission to push
-to this repo. If you don’t have RStudio set-up to push to GitHub, then
-you need to set that up first. Also you need to be working in the local
-repo of the GitHub repo that your are pushing to. This sounds more
-complicated than it is.
+Here I show how you might use the
+[**gert**](https://CRAN.R-project.org/package=gert) package. Note this
+works because I am doing it within RStudio and my RStudio set-up has
+permission to push to this repo. If you don’t have RStudio set-up to
+push to GitHub, then you need to set that up first. Also you need to be
+working in the local repo of the GitHub repo that your are pushing to.
+This sounds more complicated than it is.
 
     gert::git_add(file.path("data", "Stone.csv"))
     gert::git_commit("Adding a file", author = "Eli Holmes <eli.holmes@noaa.gov>")
     gert::git_push(remote = "origin", repo = ".")
 
 You can also use these set ups to set up your code to run from GitHub
-(say) via GitHub Actions. Though you’ll need to figure out how to tell
-the action when to run since it won’t know when a file got uploaded to
-Google Drive. I am sure there is a way to do that though [read
-this](https://gargle.r-lib.org/articles/non-interactive-auth.html).
+via GitHub Actions. If the Google Drive is not publically viewable, then
+you’ll need to research how to set up authorization in a deployed
+application [read
+this](https://gargle.r-lib.org/articles/non-interactive-auth.html). But
+if the Google Drive is publically viewable, then it is fairly easy to
+set up a Google Action that is triggered on a schedule or triggered by
+an outside event. [Read about how to do that
+here](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows).
 
-## \*Advanced notes on Authorizing Google Drive
+## \*Advanced notes on authorizing Google Drive for code in an Rmd file
 
-So run that once, before running the Rmd and you’ll get a pop-up window
-asking permission for readonly access. Then in your Rmd add these lines.
-Obviously, add your email not mine. Note, the [gargle help
+Step 1. Tell `drive_auth()` where to put the token.
+
+    options(
+      gargle_oauth_cache = ".secrets",
+      gargle_oauth_email = "eli.holmes@noaa.gov"
+    )
+
+Step 2. Run the authorization code once. For example, This would set the
+authorization to readonly.
+
+    googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly", email = "eli.holmes@noaa.gov")
+
+This would set the authorization to full control (read, edit, upload and
+delete).
+
+    googledrive::drive_auth()
+
+Run that once, before knitting the Rmd. You’ll get a pop-up window
+asking permission for access.
+
+Step 3. Then at the top of your Rmd file add these lines. This tells Rmd
+where to find the cached token to use for authorization. Obviously, add
+your email not the one here. Note, the [gargle help
 file](https://gargle.r-lib.org/articles/non-interactive-auth.html)
 doesn’t say that this is what you should do but this is what worked for
 me.
@@ -304,6 +324,9 @@ me.
     )
     googledrive::drive_deauth()
     googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly", email="eli.holmes@noaa.gov")
+
+If you look at the Rmd file for this document, you’ll see this code at
+the top with `include=FALSE` so it doesn’t show in the output.
 
 Make sure `.secrets` is in your `.github` file. Don’t push that up to
 GitHub. Maybe you even want to delete that folder automatically on
