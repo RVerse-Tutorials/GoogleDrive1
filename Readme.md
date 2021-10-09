@@ -1,11 +1,12 @@
 # Overview
 
-This tutorial will use 3 functions within the
+This tutorial will use 4 functions within the
 [{googledrive}](https://googledrive.tidyverse.org/) package:
 
 -   `drive_auth()` Authorize {googledrive} to access your Google Drive
 -   `drive_ls()` List contents of a folder or shared drive
 -   `drive_download()` Download a Drive file
+-   `drive_upload()` Upload a Drive file
 
 This code is designed to be run locally (meaning on someone’s computer
 manually). If the Google Drive folder is private, you need to run the
