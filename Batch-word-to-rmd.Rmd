@@ -26,7 +26,7 @@ This Rmd will download Word (`docx`) files from a Google Drive folder and conver
 ## Download all the Word files
 
 This will download the files from the folder and save to a folder called `data`.
-```{r}
+```{r message=FALSE}
 a <- googledrive::drive_ls(path = url_googledrive, type = "docx")
 for (i in 1:nrow(a)){
   googledrive::drive_download(a$id[i], overwrite = TRUE, path = file.path("data", a$name[i]))

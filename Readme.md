@@ -302,28 +302,9 @@ This will download the files from the folder and save to a folder called
 `data`.
 
     a <- googledrive::drive_ls(path = url_googledrive, type = "docx")
-
-    ## Auto-refreshing stale OAuth token.
-
     for (i in 1:nrow(a)){
       googledrive::drive_download(a$id[i], overwrite = TRUE, path = file.path("data", a$name[i]))
     }
-
-    ## File downloaded:
-
-    ## • 'example.docx' <id: 1mu0byOimaRFwLT6NTSoVAZKXhsOkyg8Y>
-
-    ## Saved locally as:
-
-    ## • 'data/example.docx'
-
-    ## File downloaded:
-
-    ## • 'example2.docx' <id: 1LZm6w6FsfDhZsvjxPA5hAuaVMbDeGHal>
-
-    ## Saved locally as:
-
-    ## • 'data/example2.docx'
 
 ## Convert the Word files to Rmd
 
