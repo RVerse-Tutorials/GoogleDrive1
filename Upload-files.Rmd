@@ -1,0 +1,63 @@
+---
+title: "Upload files to a Google Drive folder"
+date: '`r format(Sys.time(), "%A %B %d %Y %X %Z")`'
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+options(
+  gargle_oauth_cache = ".secrets",
+  gargle_oauth_email = "eli.holmes@noaa.gov"
+)
+googledrive::drive_deauth()
+googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive", email="eli.holmes@noaa.gov")
+url_googledrive <- "https://drive.google.com/drive/folders/11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
+id_googledrive <- "11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
+```
+
+# Upload Files
+
+## Authorize google drive to connect
+
+For this example, you will need to set authorization to allow uploading files. Run Steps 1-3 in the authorization section below with this scope.
+```{r eval=FALSE}
+googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive", email = "eli.holmes@noaa.gov")
+```
+Only a person who has permission to edit the folder will be able to upload to it. See the Rmd file for this section to see how the header information is set.
+
+### Save a table to Google Drive
+
+Here we have an example data set of daily air quality measurements in New York, May to September 1973. We are going to save this table and share it back to Google Drive. 
+
+Create table.
+```{r}
+airquality <- datasets::airquality
+head(airquality)
+fil <- file.path(here::here(), "data", "airquality.csv")
+write.csv(x = airquality, file = fil)
+```
+
+Upload table to Google Drive.
+```{r}
+googledrive::drive_upload(media = fil, path = googledrive::as_id(id_googledrive), overwrite = TRUE)
+```
+
+### Save an image to Google Drive
+
+Create image.
+```{r}
+fil <- file.path(here::here(), "data", "airquality_plot.jpeg")
+jpeg(file=fil)
+hist(airquality$Temp, main = "Temperature Histogram", ylab = "Temperatures")
+dev.off()
+```
+
+Upload image to Google Drive.
+```{r}
+googledrive::drive_upload(media = fil, path = googledrive::as_id(id_googledrive), overwrite = TRUE)
+```
+

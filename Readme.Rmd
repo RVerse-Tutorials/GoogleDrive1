@@ -1,0 +1,70 @@
+---
+title: "Basic Google Drive Interaction"
+date: '`r format(Sys.time(), "%A %B %d %Y %X %Z")`'
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+options(
+  gargle_oauth_cache = ".secrets",
+  gargle_oauth_email = "eli.holmes@noaa.gov"
+)
+googledrive::drive_deauth()
+googledrive::drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly", email="eli.holmes@noaa.gov")
+```
+
+# Overview
+
+This tutorial will use 3 functions within the [{googledrive}](https://googledrive.tidyverse.org/) package:
+
+* `drive_auth()`         Authorize {googledrive} to access your Google Drive
+* `drive_ls()`           List contents of a folder or shared drive
+* `drive_download()`     Download a Drive file
+
+This code is designed to be run locally (meaning on someone's computer manually). If the Google Drive folder is private, you need to run the authentication code first before you knit the Rmd file.
+
+Below are examples using a NOAA Google Drive folder. 
+
+# Set-up
+
+## 1. Install **googledrive** package (if needed)
+
+```{r eval=FALSE}
+install.packages("googledrive")
+```
+
+## 2. Create a folder on Google Drive (if needed)
+
+I have created a Google Drive folder in my NOAA account. It is only viewable if you are in NOAA, and is only editable by the creator (Eli). It has the following sample files:
+
+![](images/googledrive.png)
+
+## 3. Copy the url to the Google Drive folder location*
+
+*Only people with a NOAA email will be able to see this folder 
+
+```{r}
+url_googledrive <- "https://drive.google.com/drive/folders/11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
+id_googledrive <- "11WnXxs56jORbLkD1mFTZxwSaShex3Sse"
+```
+
+```{r child="Download-files.md"}
+```
+
+```{r child="Upload-files.md"}
+```
+
+```{r child="Batch-word-to-rmd.md"}
+```
+
+```{r child="Authorizing.md"}
+```
